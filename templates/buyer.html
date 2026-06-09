@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISO SCM - Buyer Workspace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="/admin">1. Lớp Admin</a>
+        <a href="/buyer">2. Lớp Buyer</a>
+        <a href="/attacker">3. Lớp Attacker</a>
+        <a href="/reviews">Sổ cái Reviews</a>
+        <a href="/compliance">Báo cáo ISO Compliance</a>
+    </nav>
+    <div class="container">
+        <h1>Lớp Người dùng: Người mua hàng hợp lệ (Node 2)</h1>
+        <hr>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <p><strong>Địa chỉ ví Buyer:</strong> <span class="badge badge-info">{{ nodes.buyer }}</span></p>
+        </div>
+
+        <h2>Đăng tải đánh giá sản phẩm thương mại</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Số sao đánh giá (Rating):</label>
+                <select name="rating">
+                    <option value="5">5 Sao (Rất tốt)</option>
+                    <option value="4">4 Sao (Tốt)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nội dung bình luận (Comment):</label>
+                <textarea name="comment" rows="4" required placeholder="Sản phẩm tuyệt vời, giao hàng rất nhanh..."></textarea>
+            </div>
+            <button type="submit" style="background-color: #16a34a;">Gửi đánh giá lên Blockchain</button>
+        </form>
+    </div>
+</body>
+</html>

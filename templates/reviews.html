@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISO SCM - Sổ cái minh bạch</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="/admin">1. Lớp Admin</a>
+        <a href="/buyer">2. Lớp Buyer</a>
+        <a href="/attacker">3. Lớp Attacker</a>
+        <a href="/reviews">Sổ cái Reviews</a>
+        <a href="/compliance">Báo cáo ISO Compliance</a>
+    </nav>
+    <div class="container">
+        <h1>Dữ liệu lịch sử lưu giữ trên mạng DLT phi tập trung</h1>
+        <p>Toàn bộ thông tin được đồng bộ trực tiếp từ Ethereum Local State thông qua các hàm thư viện Web3.py.</p>
+        <hr>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Địa chỉ ví gửi (Reviewer)</th>
+                    <th>Xếp hạng</th>
+                    <th>Nội dung ý kiến</th>
+                    <th>Thời gian lưu khối (Timestamp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td><small>{{ review.reviewer }}</small></td>
+                    <td><span class="badge badge-success">{{ review.rating }} ★</span></td>
+                    <td><strong>{{ review.comment }}</strong></td>
+                    <td>{{ review.timestamp }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #64748b;">Chưa có bản ghi giao dịch thành công nào được lưu trữ trong khối mạng.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

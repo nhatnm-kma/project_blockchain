@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISO SCM - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="/admin">1. Lớp Admin</a>
+        <a href="/buyer">2. Lớp Buyer</a>
+        <a href="/attacker">3. Lớp Attacker</a>
+        <a href="/reviews">Sổ cái Reviews</a>
+        <a href="/compliance">Báo cáo ISO Compliance</a>
+    </nav>
+    <div class="container">
+        <h1>Lớp Người dùng: Hệ quản trị Admin (Node 1)</h1>
+        <hr>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <h3>Cấu hình định danh các Node mạng (ISO/IEC 22739 Participant)</h3>
+            <p><strong>Admin Address:</strong> <span class="badge badge-info">{{ nodes.admin }}</span></p>
+            <p><strong>Target Buyer Address:</strong> <span class="badge badge-info">{{ nodes.buyer }}</span></p>
+            <p><strong>Trạng thái phân quyền Buyer hiện tại:</strong> 
+                {% if is_approved %}
+                    <span class="badge badge-success">ACCEPTED / ĐÃ XÁC THỰC</span>
+                {% else %}
+                    <span class="badge badge-danger">PENDING / CHƯA XÁC THỰC</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <h2>Hành động: Cấp quyền thực thể (Approve Buyer)</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Địa chỉ ví người mua hàng (Buyer Wallet Address):</label>
+                <input type="text" name="buyer_address" value="{{ nodes.buyer }}" readonly>
+            </div>
+            <button type="submit">Ký duyệt phân quyền (Execute transaction)</button>
+        </form>
+    </div>
+</body>
+</html>
