@@ -1,32 +1,61 @@
 import json
+import subprocess
 from web3 import Web3
-from solcx import compile_standard, install_solc
 
-# Cài đặt phiên bản solc tương thích
-install_solc("0.8.0")
+SOLC_PATH = r"C:\Users\khang\Downloads\App\solc.exe"
 
-with open("./contracts/ReviewVerification.sol", "r") as file:
-    contract_source_code = file.read()
+# Compile contract bằng solc.exe
+result = subprocess.run(
+    [
+        SOLC_PATH,
+        "--combined-json",
+        "abi,bin",
+        "contracts/ReviewVerification.sol"
+    ],
+    capture_output=True,
+    text=True
+)
 
-# Biên dịch mã nguồn Smart Contract sang mã máy EVM Bytecode và ABI
-compiled_sol = compile_standard({
-    "language": "Solidity",
-    "sources": {"ReviewVerification.sol": {"content": contract_source_code}},
-    "settings": {"outputSelection": {"*": {"*": ["abi", "evm.bytecode.object"]}}}
-}, solc_version="0.8.0")
+if result.returncode != 0:
+    print(result.stderr)
+    raise Exception("Compile failed")
 
-bytecode = compiled_sol["contracts"]["ReviewVerification.sol"]["ReviewVerification"]["evm"]["bytecode"]["object"]
-abi = compiled_sol["contracts"]["ReviewVerification.sol"]["ReviewVerification"]["abi"]
+compiled = json.loads(result.stdout)
+
+contract_key = "contracts/ReviewVerification.sol:ReviewVerification"
+
+# Debug nếu cần
+print("Contracts found:")
+print(compiled["contracts"].keys())
+
+# Lấy ABI và Bytecode
+abi = compiled["contracts"][contract_key]["abi"]
+bytecode = compiled["contracts"][contract_key]["bin"]
 
 # Kết nối Ganache
 w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545"))
+
+if not w3.is_connected():
+    raise Exception("Cannot connect to Ganache")
+
 admin_account = w3.eth.accounts[0]
 
-# Khởi tạo tiến trình Deploy gốc bằng mã lệnh
-ReviewContract = w3.eth.contract(abi=abi, bytecode=bytecode)
-tx_hash = ReviewContract.constructor().transact({'from': admin_account})
+print("Connected to Ganache")
+print("Admin account:", admin_account)
+
+# Deploy contract
+ReviewContract = w3.eth.contract(
+    abi=abi,
+    bytecode=bytecode
+)
+
+tx_hash = ReviewContract.constructor().transact({
+    "from": admin_account
+})
+
+print("Transaction hash:", tx_hash.hex())
+
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-print(f"DEPLOY SUCCESSFUL!")
-print(f"Contract Address: {tx_receipt.contractAddress}")
-# Hãy copy địa chỉ in ra này thế chỗ vào phần CONTRACT_ADDRESS trong tệp backend/config.py
+print("\nDEPLOY SUCCESSFUL!")
+print("Contract Address:", tx_receipt.contractAddress)
